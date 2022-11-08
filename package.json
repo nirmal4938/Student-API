@@ -1,0 +1,36 @@
+{
+  "name": "student-portal-ts-node-orm-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node index.ts",
+    "dev": "nodemon index.ts",
+    "build": "tsc -p ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/express": "^4.17.14",
+    "@types/node": "^18.11.9",
+    "celebrate": "^15.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "http-status": "^1.5.3",
+    "joi": "^17.7.0",
+    "moment": "^2.29.4",
+    "mysql2": "^2.3.3",
+    "nodemon": "^2.0.20",
+    "reflect-metadata": "^0.1.13",
+    "swagger-jsdoc": "^6.2.5",
+    "swagger-ui-express": "^4.6.0",
+    "ts-node": "^10.9.1",
+    "typeorm": "^0.3.10",
+    "typescript": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/swagger-jsdoc": "^6.0.1"
+  }
+}
