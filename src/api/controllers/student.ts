@@ -19,38 +19,52 @@ const getStudentList = {
   controller: async (req: any, res: Response): Promise<any> => {
     try {
       const studentRepo = getRepository(Student);
-     console.log("req.query.search_term", req.query.search_term);
+      console.log("req.query.search_term", req.query.search_term);
       let conditions: any = [];
       Object.keys(req.query).map((query) => {
         switch (query) {
           case "search_term":
             if (!req.query.search_term) break;
             if (req.query.search_term) {
-              req.query.search_term.split(" ").map((x: any) => {        
-                conditions.push(`(student.firstName like '%${x}%')`);
+              req.query.search_term.split(" ").map((x: any) => {
+                conditions.push({
+                  q1: `(student.firstName like '%${x}%')`,
+                  q2: `(student.lastName like '%${x}%')`,
+                  q3: `(student.city like '%${x}%')`,
+                });
               });
             } else {
-              conditions.push(
-                `(student.firstName like '%${req.query.search_term}%')`
-              );
+              conditions.push({
+                q1: `(student.firstName like '%${req.query.search_term}%')`,
+                q2: `(student.lastName like '%${req.query.search_term}%')`,
+                q3: `(student.city like '%${req.query.search_term}%')`,
+              });
             }
             break;
           case "status":
             if (!req.query.status) break;
-            conditions.push(`(student.status = '${req.query.status}')`);
+            conditions.push({ q1: `(student.status = '${req.query.status}')` });
             break;
         }
       });
 
       let query: any;
 
-      query = studentRepo.createQueryBuilder("student").select(["student"]);
+      query = studentRepo
+        .createQueryBuilder("student")
+        .leftJoinAndSelect("student.subjects", "subject");
 
       conditions.map((x: any, i: any) => {
         if (!i) {
-          query = query.where(x);
+          Object.keys(x)?.map((k, i) => {
+            if (!i) {
+              query = query.where(x[k]);
+            } else {
+              query = query.orWhere(x[k]);
+            }
+          });
         } else {
-          query = query.andWhere(x);
+          query = query.andWhere(x.q1);
         }
       });
       const [student, count] = await query
@@ -58,12 +72,11 @@ const getStudentList = {
         .skip(req.query.per_page * (req.query.page_number - 1))
         .take(req.query.per_page)
         // .where("student.firstName like :name", { name:`%${req.query.search_term}%` })
+        // .orWhere("student.lastName like :name", { name:`%${req.query.search_term}%` })
         .getManyAndCount();
-
       const AllCount = await query.getCount();
-
       const result = {
-        question: student.map((student: Student) => {
+        student: student.map((student: Student) => {
           return {
             id: student.id,
             firstName: student.firstName,
@@ -78,6 +91,7 @@ const getStudentList = {
             enrollmentTo: student.enrollmentTo,
             status: student.status,
             isActive: student.isActive,
+            subjects: student.subjects,
             created_at: student.created_at,
             updated_at: student.updated_at,
           };
@@ -100,22 +114,24 @@ const getStudentList = {
 
 const postStudent = {
   validator: celebrate({
-    query: Joi.object().keys({
-      firstName: Joi.string(),
-      lastName: Joi.string(),
-      city: Joi.string(),
-      standard: Joi.number(),
-      dateOfBirth: Joi.string(),
-      skills: Joi.array(),
-      briefIntro: Joi.string(),
-      enrollmentFrom: Joi.string(),
-      enrollmentTo: Joi.string(),
-      status: Joi.string(),
-      isActive: Joi.boolean(),
+    body: Joi.object().keys({
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      city: Joi.string().required(),
+      dateOfBirth: Joi.string().required(),
+      standard: Joi.number().required(),
+      skills: Joi.array().required(),
+      subjects: Joi.array().required(),
+      briefIntro: Joi.string().required(),
+      enrollmentFrom: Joi.string().required(),
+      enrollmentTo: Joi.string().required(),
+      status: Joi.string().required(),
+      isActive: Joi.boolean().required(),
     }),
   }),
   controller: async (req: any, res: Response): Promise<any> => {
     try {
+      console.log("Body", req.body);
       let newStudent = req.body;
       newStudent.dateOfBirth = new Date(req.body.dateOfBirth);
       newStudent.enrollmentFrom = new Date(req.body.enrollmentFrom);
@@ -125,7 +141,7 @@ const postStudent = {
         newStudent.dateOfBirth.getFullYear();
       newStudent["age"] = age;
       let studentRepo = getRepository(Student);
-      const student = await studentRepo.create(newStudent);
+      const student = studentRepo.create(newStudent);
       console.log("result", student);
       let result = await studentRepo.save(student);
       console.log("result", result);
@@ -133,7 +149,7 @@ const postStudent = {
       if (result) {
         return res
           .status(httpStatus.OK)
-          .json(new APIResponse(result, " Student Add Succesfully", true));
+          .json(new APIResponse(result, " Student Added Succesfully", true));
       }
 
       throw new Error("Student Add Error");
@@ -152,17 +168,18 @@ const updateStudent = {
       id: Joi.string().required(),
     }),
     body: Joi.object().keys({
-      firstName: Joi.string(),
-      lastName: Joi.string(),
-      city: Joi.string(),
-      standard: Joi.number(),
-      dateOfBirth: Joi.string(),
-      skills: Joi.array(),
-      briefIntro: Joi.string(),
-      enrollmentFrom: Joi.string(),
-      enrollmentTo: Joi.string(),
-      status: Joi.string(),
-      isActive: Joi.boolean(),
+      firstName: Joi.string().required(),
+      lastName: Joi.string().required(),
+      city: Joi.string().required(),
+      dateOfBirth: Joi.string().required(),
+      standard: Joi.number().required(),
+      skills: Joi.array().required(),
+      subjects: Joi.array().required(),
+      briefIntro: Joi.string().required(),
+      enrollmentFrom: Joi.string().required(),
+      enrollmentTo: Joi.string().required(),
+      status: Joi.string().required(),
+      isActive: Joi.boolean().required(),
     }),
   }),
   controller: async (req: any, res: Response): Promise<any> => {
@@ -181,6 +198,7 @@ const updateStudent = {
         where: {
           id: req.params.id,
         },
+        relations: { subjects: true },
       });
       if (checkStudent) {
         studentRepo.merge(checkStudent, updateStudent);
@@ -218,6 +236,7 @@ const getUniqueStudent = {
         where: {
           id: req.params.id,
         },
+        relations: { subjects: true },
       });
       if (checkStudent) {
         let result = JSON.parse(JSON.stringify(checkStudent));
@@ -267,10 +286,9 @@ const DeleteStudent = {
 };
 
 export {
-    getStudentList,
-    postStudent,
-    updateStudent,
-    getUniqueStudent,
-    DeleteStudent,
+  getStudentList,
+  postStudent,
+  updateStudent,
+  getUniqueStudent,
+  DeleteStudent,
 };
-

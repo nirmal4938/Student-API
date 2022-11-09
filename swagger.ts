@@ -1,22 +1,19 @@
-const swaggerUi = require('swagger-ui-express');
-import swaggerJsDoc from 'swagger-jsdoc';
+const swaggerUi = require("swagger-ui-express");
+import swaggerJsDoc from "swagger-jsdoc";
 
 const swaggerOptions = {
   swaggerDefinition: {
     info: {
-      title: 'Student Portal',
-      version: '1.0.0'
+      title: "Student Portal",
+      version: "1.0.0",
     },
-    basePath: '/',
-    schemes: [
-      "http",
-      "https"
-    ],
+    basePath: "/",
+    schemes: ["http", "https"],
     tags: [
       {
         name: "Student",
-        description: "Operations about Student"
-      }
+        description: "Operations about Student",
+      },
     ],
     // securityDefinitions: {
     //   Token: {
@@ -26,13 +23,11 @@ const swaggerOptions = {
     //   }
     // }
   },
-  apis: [
-    './src/api/routes/student.ts',
-  ],
+  apis: ["./src/api/routes/student.ts"],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
 export const setSwagger = (app: any) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
+  app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 };

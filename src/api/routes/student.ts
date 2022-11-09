@@ -47,8 +47,7 @@ router.get("/", getStudentList.validator, getStudentList.controller);
  * /student/add:
  *  post:
  *    tags: [Student]
- *    description: Add new student
- *    security: []
+ *    description: Add New Student
  *    parameters:
  *    - in: body
  *      name: body
@@ -58,52 +57,64 @@ router.get("/", getStudentList.validator, getStudentList.controller);
  *        properties:
  *          firstName:
  *            type: string
- *            example: "First Name"
+ *            example: "Test"
+ *            required: true
  *          lastName:
  *            type: string
- *            example: "Last Name"
+ *            example: "Test"
+ *            required: true
  *          city:
  *            type: string
- *            example: "cityName"
+ *            example: "city"
+ *            required: true
  *          standard:
  *            type: number
  *            example: 10
+ *            required: true
  *          dateOfBirth:
  *            type: string
  *            example: "12/30/1996"
- *          skills:
- *            type: object
- *            example: ["A", "B"]
- *          briefIntro:
+ *          status:
  *            type: string
- *            example: "This is description..."
+ *            enum: [Live, Suspended]
+ *          enrollmentFrom:
+ *            type: string
+ *            example: "4/28/2008"
+ *          enrollmentTo:
+ *            type: string
+ *            example: "4/30/2008"
  *          isActive:
  *            type: boolean
  *            example: true
- *          status:
+ *            required: true
+ *          briefIntro:
  *            type: string
- *            example: "active"
- *          enrollmentFrom:
- *            type: string
- *            example: "12/20/2020"
- *          enrollmentTo:
- *            type: string
- *            example: "2/20/2021"
+ *            example: "Please enter briefIntro"
+ *            required: true
+ *          skills:
+ *            type: array
+ *            example: ["sk1", "sk2"] 
+ *            required: true
+ *          subjects:
+ *            type: array
+ *            example: [{subjectName: "Sub1"}, {subjectName: "Sub2"}]
  *    responses:
  *      200:
- *      description: Success
- *      content: {}
+ *        description: Success
+ *        content: {}
  *
  */
-router.post("/add", postStudent.validator, postStudent.controller);
+
+
+
+router.post("/add",postStudent.validator, postStudent.controller);
 
 /**
  * @swagger
  * /student/edit/{id}:
  *  put:
  *    tags: [Student]
- *    description: Update student
- *    security: []
+ *    description: Edit Student
  *    parameters:
  *    - in: path
  *      name: id
@@ -117,41 +128,48 @@ router.post("/add", postStudent.validator, postStudent.controller);
  *        properties:
  *          firstName:
  *            type: string
- *            example: "First Name"
+ *            example: "Test"
+ *            required: true
  *          lastName:
  *            type: string
- *            example: "Last Name"
+ *            example: "Test"
+ *            required: true
  *          city:
  *            type: string
- *            example: "cityName"
+ *            example: "city"
+ *            required: true
  *          standard:
  *            type: number
  *            example: 10
+ *            required: true
  *          dateOfBirth:
  *            type: string
  *            example: "12/30/1996"
- *          skills:
- *            type: object
- *            example: ["A", "B"]
- *          briefIntro:
+ *          status:
  *            type: string
- *            example: "This is description..."
+ *            enum: [Live, Suspended]
+ *          enrollmentFrom:
+ *            type: string
+ *            example: "4/28/2008"
+ *          enrollmentTo:
+ *            type: string
+ *            example: "4/30/2008"
  *          isActive:
  *            type: boolean
  *            example: true
- *          status:
+ *            required: true
+ *          briefIntro:
  *            type: string
- *            example: "active"
- *          enrollmentFrom:
- *            type: string
- *            example: "12/20/2020"
- *          enrollmentTo:
- *            type: string
- *            example: "2/20/2021"
+ *            example: "Please enter briefIntro"
+ *            required: true
+ *          skills:
+ *            type: array
+ *            example: ["sk1", "sk2"] 
+ *            required: true
  *    responses:
  *      200:
- *      description: Success
- *      content: {}
+ *        description: Success
+ *        content: {}
  *
  */
 router.put("/edit/:id", updateStudent.validator, updateStudent.controller);

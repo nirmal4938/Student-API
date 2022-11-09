@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Subject } from "./Subject";
 
 
 export enum Status {
@@ -44,7 +45,7 @@ export class Student {
         type: "enum",
         enum: Status,
     })
-    status!: Status;
+    status: Status;
 
     @Column()
     isActive!: boolean;
@@ -57,5 +58,9 @@ export class Student {
 		type: 'timestamp',
 	})
 	updated_at!: Date;
+
+    @ManyToMany(() => Subject, subject => subject.id, {cascade: true})
+    @JoinTable()
+    subjects: Subject[]
 
 }
